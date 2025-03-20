@@ -24,6 +24,18 @@ class LogisticsApp extends StatelessWidget {
   }
 }
 
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Home')),
+      body: const Center(child: Text('Welcome to Home!')),
+    );
+  }
+}
+
 class User {
   static String name = '';
   static String email = '';
@@ -64,9 +76,9 @@ class RegisterPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
+    final nameController = TextEditingController();
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Register')),
@@ -104,7 +116,7 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Profile')),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -112,8 +124,10 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 20),
             Text('Name: ${User.name}', style: const TextStyle(fontSize: 18)),
             Text('Email: ${User.email}', style: const TextStyle(fontSize: 18)),
-            const Text('Role: Logistics Manager',
-                style: TextStyle(fontSize: 18)),
+            const Text(
+              'Role: Logistics Manager',
+              style: TextStyle(fontSize: 18),
+            ),
             const SizedBox(height: 20),
             const Text(
               'Assigned Deliveries:',
@@ -141,64 +155,14 @@ class ProfilePage extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Logistics Dashboard')),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Live Shipment Tracking',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              height: 200,
-              color: Colors.blue.shade100,
-              child: const Center(child: Text('Map View (Placeholder)')),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Recent Shipments:',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            Expanded(
-              child: ListView(
-                children: const [
-                  ListTile(title: Text('Shipment 101 - On Route')),
-                  ListTile(title: Text('Shipment 102 - Delivered')),
-                  ListTile(title: Text('Shipment 103 - Awaiting Pickup')),
-                ],
-              ),
-            ),
-            ActionButton(
-              text: 'Logout',
-              onPressed: () {
-                Navigator.pushNamed(context, '/');
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class InputField extends StatelessWidget {
-  final TextEditingController? controller;
   final String hintText;
+  final TextEditingController? controller;
   final bool obscureText;
 
   const InputField({
-    super.key,
+    required this.hintText, super.key,
     this.controller,
-    required this.hintText,
     this.obscureText = false,
   });
 
@@ -223,9 +187,7 @@ class ActionButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const ActionButton({
-    super.key,
-    required this.text,
-    required this.onPressed,
+    required this.text, required this.onPressed, super.key,
   });
 
   @override
