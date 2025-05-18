@@ -1,112 +1,202 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const LogisticsApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class LogisticsApp extends StatelessWidget {
+  const LogisticsApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: CounterScreen(),
+      title: 'Logistics App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const LoginPage(),
+        '/register': (context) => const RegisterPage(),
+        '/profile': (context) => const ProfilePage(),
+        '/home': (context) => const HomePage(),
+      },
     );
   }
 }
 
-class CounterScreen extends StatefulWidget {
-  const CounterScreen({super.key});
-
-  @override
-  CounterScreenState createState() => CounterScreenState();
-}
-
-class CounterScreenState extends State<CounterScreen> {
-  int _counter = 0;
-  final TextEditingController _controller = TextEditingController();
-  Color _bgColor = Colors.white;
-  final Random _random = Random();
-
-  void _processInput() {
-    final String input = _controller.text.trim();
-    setState(() {
-      switch (input) {
-        case 'Avada Kedavra':
-          _counter = 0;
-          _bgColor = Colors.redAccent;
-          break;
-        case 'Wingardium Leviosa':
-          final int randomValue = _random.nextInt(10) + 1;
-          _counter += randomValue;
-          _bgColor = Colors.lightBlueAccent;
-          break;
-        case 'Expelliarmus':
-          _counter = (_counter >= 5) ? _counter - 5 : 0;
-          _bgColor = Colors.orangeAccent;
-          break;
-        case 'Lumos':
-          _bgColor = Colors.white;
-          break;
-        case 'Nox':
-          _bgColor = Colors.black;
-          break;
-        case 'Protego':
-          _counter *= 2;
-          _bgColor = Colors.purpleAccent;
-          break;
-        default:
-          final int? number = int.tryParse(input);
-          if (number != null) {
-            _counter += number;
-            _bgColor = Colors.greenAccent;
-          } else {
-            _bgColor = Colors.yellowAccent;
-          }
-      }
-      _controller.clear();
-    });
-  }
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Магічний Лічильник')),
-      body: AnimatedContainer(
-        duration: const Duration(milliseconds: 500),
-        color: _bgColor,
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Лічильник: $_counter',
-                style: const TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextField(
-                  controller: _controller,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'Введіть число або закляття',
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: _processInput,
-                child: const Text('Застосувати'),
-              ),
-            ],
-          ),
+      appBar: AppBar(title: const Text('Home')),
+      body: const Center(child: Text('Welcome to Home!')),
+    );
+  }
+}
+
+class User {
+  static String name = '';
+  static String email = '';
+}
+
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Login')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const InputField(hintText: 'Email'),
+            const InputField(hintText: 'Password', obscureText: true),
+            ActionButton(
+              text: 'Login',
+              onPressed: () {
+                Navigator.pushNamed(context, '/home');
+              },
+            ),
+            TextButton(
+              onPressed: () => Navigator.pushNamed(context, '/register'),
+              child: const Text('Register'),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+}
+
+class RegisterPage extends StatelessWidget {
+  const RegisterPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final nameController = TextEditingController();
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Register')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            InputField(controller: nameController, hintText: 'Name'),
+            InputField(controller: emailController, hintText: 'Email'),
+            InputField(
+              controller: passwordController,
+              hintText: 'Password',
+              obscureText: true,
+            ),
+            ActionButton(
+              text: 'Register',
+              onPressed: () {
+                User.name = nameController.text;
+                User.email = emailController.text;
+                Navigator.pushNamed(context, '/profile');
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ProfilePage extends StatelessWidget {
+  const ProfilePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Profile')),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Center(child: Icon(Icons.account_circle, size: 100)),
+            const SizedBox(height: 20),
+            Text('Name: ${User.name}', style: const TextStyle(fontSize: 18)),
+            Text('Email: ${User.email}', style: const TextStyle(fontSize: 18)),
+            const Text(
+              'Role: Logistics Manager',
+              style: TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Assigned Deliveries:',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            Expanded(
+              child: ListView(
+                children: const [
+                  ListTile(title: Text('Package 1 - In Transit')),
+                  ListTile(title: Text('Package 2 - Delivered')),
+                  ListTile(title: Text('Package 3 - Pending Pickup')),
+                ],
+              ),
+            ),
+            ActionButton(
+              text: 'Go to Home',
+              onPressed: () {
+                Navigator.pushNamed(context, '/home');
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class InputField extends StatelessWidget {
+  final String hintText;
+  final TextEditingController? controller;
+  final bool obscureText;
+
+  const InputField({
+    required this.hintText, super.key,
+    this.controller,
+    this.obscureText = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          border: const OutlineInputBorder(),
+          hintText: hintText,
+        ),
+      ),
+    );
+  }
+}
+
+class ActionButton extends StatelessWidget {
+  final String text;
+  final VoidCallback onPressed;
+
+  const ActionButton({
+    required this.text, required this.onPressed, super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        child: Text(text),
       ),
     );
   }
