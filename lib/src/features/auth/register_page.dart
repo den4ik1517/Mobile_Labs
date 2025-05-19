@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:test1/src/core/shared_prefs.dart';
 import 'package:test1/src/features/auth/auth_use_case.dart';
+import 'package:test1/src/features/auth/login_page.dart';
+import 'package:test1/src/features/home/home_page.dart';
 import 'package:test1/src/widgets/custom_input.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -14,117 +17,81 @@ class _RegisterPageState extends State<RegisterPage> {
   final passwordController = TextEditingController();
   final useCase = AuthUseCase();
 
-  bool _isLoading = false;
-
   void _register() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    final success = await useCase.register
-      (emailController.text, passwordController.text);
-
-    setState(() {
-      _isLoading = false;
-    });
-
+    final success = await useCase.register(
+      emailController.text,
+      passwordController.text,
+    );
     if (success) {
+      await SharedPrefs.setLoggedIn(true);
+      await SharedPrefs.setEmail(emailController.text);
+      await SharedPrefs.setPassword(passwordController.text);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Registered successfully'),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 2),
-        ),
+      Navigator.pushAndRemoveUntil<void>(
+        context,
+        MaterialPageRoute(builder: (_) => const HomePage()),
+            (route) => false,
       );
-      Navigator.pop(context);
     } else {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Registration failed. Try again.'),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 2),
-        ),
+        const SnackBar(content: Text('Registration failed')),
       );
     }
   }
 
+  void _goToLogin() {
+    Navigator.pushReplacement<void, void>(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Register'),
-        backgroundColor: Colors.deepPurple,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Create Account',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                color: Colors.deepPurple,
-                fontWeight: FontWeight.bold,
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(title: const Text('Register')),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Icon(Icons.person_add_alt_1, size: 80,
+                  color: Colors.blueAccent,),
+              const SizedBox(height: 20),
+              const Text(
+                'Create Account',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Please fill the form to continue',
-              style: theme.textTheme.titleMedium?.copyWith
-                (color: Colors.deepPurple.shade200),
-            ),
-            const SizedBox(height: 40),
-            CustomInput(
-              label: 'Email',
-              controller: emailController,
-            ),
-            const SizedBox(height: 20),
-            CustomInput(
-              label: 'Password',
-              controller: passwordController,
-              isPassword: true,
-              // prefixIcon: const Icon(Icons.lock_outline),
-            ),
-            const SizedBox(height: 40),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _register,
+              const SizedBox(height: 30),
+              CustomInput(label: 'Email', controller: emailController),
+              const SizedBox(height: 16),
+              CustomInput(label: 'Password', controller: passwordController,
+                  isPassword: true,),
+              const SizedBox(height: 30),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.app_registration),
+                label: const Text('Register'),
+                onPressed: _register,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Colors.blueAccent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  elevation: 5,
-                ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                  'Register',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
-                      color: Colors.white,),
+                  textStyle: const TextStyle(fontSize: 16),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Center(
-              child: TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  'Already have an account? Login',
-                  style: TextStyle(color: Colors.deepPurple.shade400),
-                ),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: _goToLogin,
+                child: const Text('Already have an account? Login'),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

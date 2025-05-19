@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:test1/src/core/shared_prefs.dart';
 import 'package:test1/src/features/auth/auth_use_case.dart';
@@ -20,14 +21,25 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
 
   void _login() async {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No internet connection. '
+              'Please connect and try again.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
 
-    final success = await useCase.login
-      (emailController.text, passwordController.text);
-
-    if (!mounted) return;
+    final success = await useCase.login(emailController.text,
+        passwordController.text,);
 
     setState(() {
       _isLoading = false;
@@ -42,6 +54,7 @@ class _LoginPageState extends State<LoginPage> {
             (Route<dynamic> route) => false,
       );
     } else {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Login failed. Please check your credentials.'),
@@ -92,22 +105,12 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 40),
 
-            // Email input
-            CustomInput(
-              label: 'Email',
-              controller: emailController,
-            ),
+            CustomInput(label: 'Email', controller: emailController),
             const SizedBox(height: 20),
-
-            // Password input
-            CustomInput(
-              label: 'Password',
-              controller: passwordController,
-              isPassword: true,
-            ),
+            CustomInput(label: 'Password', controller: passwordController,
+                isPassword: true,),
             const SizedBox(height: 30),
 
-            // Login button
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -115,24 +118,22 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: _isLoading ? null : _login,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurple,
-                  shape: RoundedRectangleBorder
-                    (borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(borderRadius:
+                  BorderRadius.circular(12),),
                   elevation: 5,
                 ),
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text(
                   'Login',
-                  style: TextStyle
-                    (fontSize: 18, fontWeight: FontWeight.bold,
-                    color:  Colors.white,),
+                  style: TextStyle(fontSize: 18, fontWeight:
+                  FontWeight.bold, color: Colors.white,),
                 ),
               ),
             ),
 
             const SizedBox(height: 20),
 
-            // Register link
             Center(
               child: TextButton(
                 onPressed: _goToRegister,
