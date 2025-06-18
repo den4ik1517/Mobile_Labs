@@ -80,6 +80,7 @@ class ProfilePage extends StatelessWidget {
   }
 }
 
+
 class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
