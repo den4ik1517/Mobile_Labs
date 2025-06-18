@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:test1/src/core/shared_prefs.dart';
 
+import 'package:test1/src/features/scanner/qr_scanner_screen.dart';
+import 'package:test1/src/features/scanner/saved_qr_screen.dart';
+
+
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
@@ -19,6 +23,7 @@ class ProfilePage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             CircleAvatar(
               radius: 48,
@@ -28,6 +33,7 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 24),
             Text(
               'Your Profile Info',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
@@ -35,17 +41,45 @@ class ProfilePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-
-            // Info block
             _InfoRow(label: 'Email', value: email),
             const SizedBox(height: 20),
             _InfoRow(label: 'Password', value: password),
+            const SizedBox(height: 40),
+
+            // Кнопка: Переглянути збережене повідомлення
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(builder: (_) =>
+                  const SavedQrScreen(),),
+                );
+              },
+              icon: const Icon(Icons.message),
+              label: const Text('Переглянути збережене повідомлення'),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+            ),
+            const SizedBox(height: 12),
+
+            // Кнопка: Сканувати QR-код
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(builder: (_) => QRScannerScreen()),
+                );
+              },
+              icon: const Icon(Icons.qr_code_scanner),
+              label: const Text('Сканувати QR-код'),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+            ),
           ],
         ),
       ),
     );
   }
 }
+
 
 class _InfoRow extends StatelessWidget {
   final String label;
