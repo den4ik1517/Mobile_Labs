@@ -1,23 +1,47 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test1/src/core/shared_prefs.dart';
+import 'package:test1/src/data/user_repository.dart';
+import 'package:test1/src/features/auth/auth_repository.dart';
+import 'package:test1/src/features/auth/auth_use_case.dart';
+import 'package:test1/src/features/auth/cubit/auth_cubit.dart';
 import 'package:test1/src/features/auth/login_page.dart';
 import 'package:test1/src/features/home/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SharedPrefs.init(); // Ініціалізуємо SharedPreferences перед запуском
+  await SharedPrefs.init();
 
-  runApp(const MyApp());
+  final authRepository = AuthRepository();
+  final authUseCase = AuthUseCase(authRepository);
+
+  final userRepository = UserRepository();
+
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthCubit>(
+          create: (_) => AuthCubit(authUseCase),
+        ),
+        BlocProvider<ProfileCubit>(
+          create: (_) => ProfileCubit(userRepository),
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Logistics App',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.deepPurple),
       home: const SplashPage(),
     );
@@ -42,31 +66,26 @@ class _SplashPageState extends State<SplashPage> {
     final isLoggedIn = SharedPrefs.getLoggedIn();
     final connectivityResult = await Connectivity().checkConnectivity();
 
+    if (!mounted) return;
+
     if (isLoggedIn) {
       if (connectivityResult == ConnectivityResult.none) {
-        // Автологін без мережі — показати попередження і пустити у Home
-        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text(
-              'No internet connection. Some features may be limited.',
-            ),
+            content: Text('No internet connection. Some features may be limited.'),
             backgroundColor: Colors.orange,
           ),
         );
-        Navigator.pushReplacement<void, void>(
-            context,
-            MaterialPageRoute<void>(builder: (_) => const HomePage()),
-        );
-      } else {
-        if (!mounted) return;
-        Navigator.pushReplacement<void, void>(
-            context, MaterialPageRoute(builder: (_) => const HomePage()),);
       }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomePage()),
+      );
     } else {
-      if (!mounted) return;
-      Navigator.pushReplacement<void, void>(
-          context, MaterialPageRoute(builder: (_) => const LoginPage()),);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+      );
     }
   }
 
